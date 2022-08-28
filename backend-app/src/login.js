@@ -7,7 +7,7 @@ import { useState } from "react";
 import LockIcon from '@mui/icons-material/Lock';
 import { useNavigate} from "react-router-dom";
 export function Login(){
-    const url='https://reqres.in/api/login'
+    const url='http://localhost:8080/auth/login/'
     const [user,setUser]=useState(null)
     const navigate= useNavigate()
     const submitLogin=()=>{

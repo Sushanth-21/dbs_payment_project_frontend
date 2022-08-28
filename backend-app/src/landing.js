@@ -9,34 +9,68 @@ import Axios from 'axios';
 export function Landing(){
     const location=useLocation()
     const [customerData,setcustomerData]=useState([])
-    const cName=[];
-    const cAmount=[];
-    const url="https://api.npoint.io/27f3301bf89e6dfc5a62";
-    useEffect(()=>{
-        Axios.get(url).then((res)=>{
-            setcustomerData(res.data)
-        });
-    },[]);
-    for (let i=0;i<customerData.length;i++){
-        cName.push(customerData[i].customername);
-        cAmount.push(parseInt(customerData[i].transcationvalue));
-    }
+    const [bankData,setBankdata]=useState([])
     const [messageCode,setMessagecode]=useState([])
     const mName=[]
     const mCount=[]
-    const url1="https://api.npoint.io/07286fe54fc822ff7f4e";
+    const bName=[];
+    const bAmount=[];
+    const cName=[];
+    const cAmount=[];
+    const url="http://localhost:8080/transaction/top_customers/";
+    const url1="http://localhost:8080/transaction/top_banks/";
+    const url2="http://localhost:8080/transaction/top_message_codes/";
     useEffect(()=>{
-        Axios.get(url1).then((res1)=>{
-            setMessagecode(res1.data)
-            console.log(res1.data);
-        });
-    },[])
-    for(let k=0;k<messageCode.length;k++){
-        mName.push(messageCode[k].messageName);
-        mCount.push(messageCode[k].messageCount)
+        Axios.get(url1).then((res)=>{
+            setBankdata(res.data.top_banks)
+            console.log(res.data.top_banks)
+        })
+        Axios.get(url).then((res)=>{
+            setcustomerData(res.data.top_customers)
+        })
+        
+        Axios.get(url2).then((res1)=>{
+            setMessagecode(res1.data.top_message_codes)
+           
+        })
+    },[]);
+    for (let i=0;i<Math.min(customerData.length,5);i++){
+        let customer=customerData[i].split(",")
+        cName.push(customer[1])
+        cAmount.push(parseInt(customer[2]))
     }
-    console.log(messageCode);
-    //console.log(location.state.hasOwnProperty("user"))
+    // const [bankData,setBankData]=useState([])
+    // const bName=[];
+    // const bAmount=[];
+    // const url1="http://localhost:8080/transaction/top_banks/";
+    // useEffect(()=>{
+    //     Axios.get(url1).then((res)=>{
+    //         setBankData(res.data.top_banks)
+    //         console.log(bankData)
+    //     })
+    // },[])
+    for (let i=0;i<Math.min(bankData.length,5).length;i++){
+        let bank=bankData[i].split(",")
+        bName.push(bank[1])
+        bAmount.push(parseInt(bank[2]))
+    }
+    // const [messageCode,setMessagecode]=useState([])
+    // const mName=[]
+    // const mCount=[]
+    // const url2="https://api.npoint.io/07286fe54fc822ff7f4e";
+    // useEffect(()=>{
+    //     Axios.get(url2).then((res1)=>{
+    //         setMessagecode(res1.data)
+           
+    //     });
+    // },[])
+    for(let k=0;k<messageCode.length;k++){
+        let code=messageCode[k].split(",")
+        mName.push(code[0]);
+        mCount.push(code[2])
+    }
+    
+    
     if(location.state!==null?location.state.user:null){
         return(
             <div>
@@ -76,14 +110,14 @@ export function Landing(){
                         height={250}
                         series={[{
                             name:"Amount Remitted",
-                            data:cAmount
+                            data:bAmount
                         }]}
                         options={{
                             xaxis:{
                                 title:{
                                     text:"Bank Name"
                                 },
-                                categories:cName},
+                                categories:bName},
                             yaxis:{
                                 title:{
                                     text:"Amount Recieved in {₹}"

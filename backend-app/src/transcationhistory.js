@@ -23,31 +23,30 @@ const columns = [
 
 
 export  function Transcationhistory() {
-  const url="https://api.npoint.io/11dec604565f8daea72b";
+  const url="http://localhost:8080/transaction/get_history/";
   const[transcationhistory,setTranscationshitory]=useState([])
   useEffect(()=>{
     Axios.get(url).then((res)=>{
-        setTranscationshitory(res.data);
+        setTranscationshitory(res.data.history);
+        console.log(res.data.history)
     });
     },[]);
-    console.log(transcationhistory)
     function createData(customerId, customerName, recieverBic, recieverAccountNo,transcationNumberAmount,messageType,transferType,date) {
         return { customerId, customerName, recieverBic, recieverAccountNo,transcationNumberAmount,messageType,transferType,date};
         }
     const rows = [];
     for(let i=0;i<transcationhistory.length;i++){
-        rows.push(createData(transcationhistory[i].customerId,
-                              transcationhistory[i].customerName,
-                              transcationhistory[i].recieverBic,
-                              transcationhistory[i].recieverAccountNo,
-                              transcationhistory[i].transcationNumberAmount,
-                              transcationhistory[i].messageType,
-                              transcationhistory[i].transferType,
-                              transcationhistory[i].date
+        rows.push(createData(transcationhistory[i].customerId.customerId,
+                              transcationhistory[i].customerId.accountHolderName,
+                              transcationhistory[i].receiverBIC.bic,
+                              transcationhistory[i].receiverAccountHolderNumber,
+                              transcationhistory[i].inrAmount,
+                              transcationhistory[i].messageCode.messageCode,
+                              transcationhistory[i].transferTypeCode.transferTypeCode,
+                              transcationhistory[i].transferDate
                               ));
     }
     
-    console.log(rows)
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
