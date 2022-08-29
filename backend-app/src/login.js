@@ -6,6 +6,8 @@ import Axios from 'axios';
 import { useState } from "react";
 import LockIcon from '@mui/icons-material/Lock';
 import { useNavigate} from "react-router-dom";
+
+// export const UserContext = React.createContext()
 export function Login(){
     const url='http://localhost:8080/auth/login/'
     const [user,setUser]=useState(null)

@@ -1,80 +1,37 @@
 import React, { useEffect, useState } from 'react';
-import { Navigate,useLocation } from 'react-router-dom';
+import { Navigate,useLocation,useNavigate } from 'react-router-dom';
 import './landing.css';
 import { Navbar } from './navigation';
 import Chart from 'react-apexcharts';
 import {  Grid } from '@mui/material';
 import Axios from 'axios';
+import axios from 'axios';
 
-export function Landing(){
+export function Landing(props){
     const location=useLocation()
+    const navigate= useNavigate()
     const [customerData,setcustomerData]=useState([])
-    const [bankData,setBankdata]=useState([])
-    const [messageCode,setMessagecode]=useState([])
-    const mName=[]
-    const mCount=[]
-    const bName=[];
-    const bAmount=[];
-    const cName=[];
-    const cAmount=[];
-    const url="http://localhost:8080/transaction/top_customers/";
-    const url1="http://localhost:8080/transaction/top_banks/";
-    const url2="http://localhost:8080/transaction/top_message_codes/";
+    const [bankData,setbankData]=useState([])
+    const [messageCode,setmessagecode]=useState([])
+
     useEffect(()=>{
-        Axios.get(url1).then((res)=>{
-            setBankdata(res.data.top_banks)
-            console.log(res.data.top_banks)
-        })
-        Axios.get(url).then((res)=>{
+        
+        Axios.get("http://localhost:8080/transaction/top_customers/").then((res)=>{
             setcustomerData(res.data.top_customers)
         })
-        
-        Axios.get(url2).then((res1)=>{
-            setMessagecode(res1.data.top_message_codes)
+        Axios.get("http://localhost:8080/transaction/top_banks/").then((res)=>{
+            setbankData(res.data.top_banks)
+        })
+        Axios.get("http://localhost:8080/transaction/top_message_codes/").then((res1)=>{
+            setmessagecode(res1.data.top_message_codes)
            
         })
     },[]);
-    for (let i=0;i<Math.min(customerData.length,5);i++){
-        let customer=customerData[i].split(",")
-        cName.push(customer[1])
-        cAmount.push(parseInt(customer[2]))
-    }
-    // const [bankData,setBankData]=useState([])
-    // const bName=[];
-    // const bAmount=[];
-    // const url1="http://localhost:8080/transaction/top_banks/";
-    // useEffect(()=>{
-    //     Axios.get(url1).then((res)=>{
-    //         setBankData(res.data.top_banks)
-    //         console.log(bankData)
-    //     })
-    // },[])
-    for (let i=0;i<Math.min(bankData.length,5).length;i++){
-        let bank=bankData[i].split(",")
-        bName.push(bank[1])
-        bAmount.push(parseInt(bank[2]))
-    }
-    // const [messageCode,setMessagecode]=useState([])
-    // const mName=[]
-    // const mCount=[]
-    // const url2="https://api.npoint.io/07286fe54fc822ff7f4e";
-    // useEffect(()=>{
-    //     Axios.get(url2).then((res1)=>{
-    //         setMessagecode(res1.data)
-           
-    //     });
-    // },[])
-    for(let k=0;k<messageCode.length;k++){
-        let code=messageCode[k].split(",")
-        mName.push(code[0]);
-        mCount.push(code[2])
-    }
     
-    
-    if(location.state!==null?location.state.user:null){
+    if((location.state!==null||props!==undefined)?location.state.user:null){
         return(
             <div>
-                <Navbar></Navbar><br/><br/><br/><br/>
+                <Navbar user={props}></Navbar><br/><br/><br/><br/>
                 <Grid container>
                     <Grid item xs={6}>
                         <center>
@@ -85,14 +42,18 @@ export function Landing(){
                         height={250}
                         series={[{
                             name:"Amount Transferred",
-                            data:cAmount
+                            data:customerData.slice(0,Math.min(customerData.length,5)).map((c)=>{
+                                return (c.split(",")[2])
+                            })
                         }]}
                         options={{
                             xaxis:{
                                 title:{
                                     text:"Customer Name"
                                 },
-                                categories:cName},
+                                categories:customerData.slice(0,Math.min(customerData.length,5)).map((c)=>{
+                                    return (c.split(",")[1])
+                                })},
                             yaxis:{
                                 title:{
                                     text:"Amount Transferred in {₹}"
@@ -110,14 +71,18 @@ export function Landing(){
                         height={250}
                         series={[{
                             name:"Amount Remitted",
-                            data:bAmount
+                            data:bankData.slice(0,Math.min(bankData.length,5)).map((b)=>{
+                                return (b.split(",")[2])
+                            })
                         }]}
                         options={{
                             xaxis:{
                                 title:{
                                     text:"Bank Name"
                                 },
-                                categories:bName},
+                                categories:bankData.slice(0,Math.min(bankData.length,5)).map((b)=>{
+                                    return (b.split(",")[1])
+                                })},
                             yaxis:{
                                 title:{
                                     text:"Amount Recieved in {₹}"
@@ -135,9 +100,13 @@ export function Landing(){
                     type="pie"
                     width={500}
                     height={250}
-                    series={mCount}
+                    series={messageCode.slice(0,Math.min(messageCode.length,5)).map((m)=>{
+                        return (m.split(",")[2])
+                    })}
                     options={{
-                        labels:mName
+                        labels:messageCode.slice(0,Math.min(messageCode.length,5)).map((m)=>{
+                            return (m.split(",")[0])
+                        })
                     }}
                     ></Chart>
                     </Grid>
@@ -147,7 +116,8 @@ export function Landing(){
         )
     }
     return(
-        <Navigate to="/"/>
+        // <Navigate to="/" />
+        navigate("/")
         
     )
 }
