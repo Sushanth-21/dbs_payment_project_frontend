@@ -9,6 +9,9 @@ import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import { Navbar } from './navigation';
 import Axios from 'axios';
+import { useLocation,useNavigate } from 'react-router-dom';
+import { LeakAddTwoTone, LegendToggleSharp } from '@mui/icons-material';
+
 const columns = [
   { id: 'customerId', label: 'Customer ID', minWidth: 100 ,align: 'center' },
   { id: 'customerName', label: 'Customer Name', minWidth: 100, align: 'center' },
@@ -23,28 +26,47 @@ const columns = [
 
 
 export  function Transcationhistory() {
-  const url="http://localhost:8080/transaction/get_history/";
+  const location=useLocation()
+  const navigate=useNavigate()
+  // let url="http://localhost:8080/transaction/get_history/";
   const[transcationhistory,setTranscationshitory]=useState([])
   useEffect(()=>{
+    let url=""
+    if(!location.state.user.employee)
+    {
+     url="http://localhost:8080/transaction/get_history/"+location.state.user.customer.customerId
+    }
+    else
+    {
+      url="http://localhost:8080/transaction/get_history/0"
+    }
+    console.log(url)
     Axios.get(url).then((res)=>{
         setTranscationshitory(res.data.history);
-        console.log(res.data.history)
-    });
+    }).catch((err)=>{
+      if(err.response.status==400)
+      {
+          alert(err.response.data.message)
+      }
+  });
     },[]);
     function createData(customerId, customerName, recieverBic, recieverAccountNo,transcationNumberAmount,messageType,transferType,date) {
         return { customerId, customerName, recieverBic, recieverAccountNo,transcationNumberAmount,messageType,transferType,date};
         }
     const rows = [];
     for(let i=0;i<transcationhistory.length;i++){
+      if(transcationhistory[i].transferDate!==null)
+      {
         rows.push(createData(transcationhistory[i].customerId.customerId,
-                              transcationhistory[i].customerId.accountHolderName,
-                              transcationhistory[i].receiverBIC.bic,
-                              transcationhistory[i].receiverAccountHolderNumber,
-                              transcationhistory[i].inrAmount,
-                              transcationhistory[i].messageCode.messageCode,
-                              transcationhistory[i].transferTypeCode.transferTypeCode,
-                              transcationhistory[i].transferDate
-                              ));
+          transcationhistory[i].customerId.accountHolderName,
+          transcationhistory[i].receiverBIC.bic,
+          transcationhistory[i].receiverAccountHolderNumber,
+          transcationhistory[i].inrAmount,
+          transcationhistory[i].messageCode.messageCode,
+          transcationhistory[i].transferTypeCode.transferTypeCode,
+          transcationhistory[i].transferDate.split("T")[0]
+          ));
+      }
     }
     
     const [page, setPage] = React.useState(0);
@@ -59,9 +81,10 @@ export  function Transcationhistory() {
     setPage(0);
   };
 
+if((location.state!==null)?location.state.user:null){
   return (
     <div>
-    <Navbar/><br/><br/><br/><br/>
+    <Navbar {...location.state}/><br/><br/><br/><br/>
     <h3><center><b><u>Transcation History</u></b></center></h3>
     <Paper sx={{ width: '100%', overflow: 'hidden' }}>
       <TableContainer sx={{ maxHeight: 440 }}>
@@ -113,4 +136,10 @@ export  function Transcationhistory() {
     </Paper>
     </div>
   );
+}
+return(
+  // <Navigate to="/" />
+  navigate("/")
+)
+  
 }

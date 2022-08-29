@@ -19,8 +19,20 @@ export function Login(){
             password:document.getElementById("password").value
         }).then(result=>{
             console.log(result.data)
-            setUser(user)
-            navigate("/landing",{state:{user:{user}}})
+            setUser(result.data)
+            if(result.data.employee){
+            navigate("/landing",{state:{user:result.data}})
+            }
+            else{
+                navigate("/transcation",{state:{user:result.data}})
+            }
+            
+        })
+        .catch((err)=>{
+            if(err.response.status==400)
+            {
+                alert(err.response.data.message)
+            }
         })
     }
     return(
